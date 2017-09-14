@@ -10,20 +10,20 @@ Promise based HTTP client for the browser and node.js
 
 ## Features
 
-- Make [XMLHttpRequests](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) from the browser
-- Make [http](http://nodejs.org/api/http.html) requests from node.js
-- Supports the [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) API
-- Intercept request and response
-- Transform request and response data
-- Cancel requests
-- Automatic transforms for JSON data
-- Client side support for protecting against [XSRF](http://en.wikipedia.org/wiki/Cross-site_request_forgery)
+-   Make [XMLHttpRequests](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) from the browser
+-   Make [http](http://nodejs.org/api/http.html) requests from node.js
+-   Supports the [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) API
+-   Intercept request and response
+-   Transform request and response data
+-   Cancel requests
+-   Automatic transforms for JSON data
+-   Client side support for protecting against [XSRF](http://en.wikipedia.org/wiki/Cross-site_request_forgery)
 
 ## Browser Support
 
-![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/src/safari/safari_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/src/opera/opera_48x48.png) | ![Edge](https://raw.github.com/alrra/browser-logos/master/src/edge/edge_48x48.png) | ![IE](https://raw.github.com/alrra/browser-logos/master/src/archive/internet-explorer_9-11/internet-explorer_9-11_48x48.png) |
---- | --- | --- | --- | --- | --- |
-Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 8+ ✔ |
+| ![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png) | ![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png) | ![Safari](https://raw.github.com/alrra/browser-logos/master/src/safari/safari_48x48.png) | ![Opera](https://raw.github.com/alrra/browser-logos/master/src/opera/opera_48x48.png) | ![Edge](https://raw.github.com/alrra/browser-logos/master/src/edge/edge_48x48.png) | ![IE](https://raw.github.com/alrra/browser-logos/master/src/archive/internet-explorer_9-11/internet-explorer_9-11_48x48.png) |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Latest ✔                                                                                 | Latest ✔                                                                                    | Latest ✔                                                                                 | Latest ✔                                                                              | Latest ✔                                                                           | 8+ ✔                                                                                                                         |
 
 [![Browser Matrix](https://saucelabs.com/open_sauce/build_matrix/axios.svg)](https://saucelabs.com/u/axios)
 
@@ -32,22 +32,36 @@ Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ | 8+ ✔ |
 Using npm:
 
 ```bash
-$ npm install axios
-```
-
-Using bower:
-
-```bash
-$ bower install axios
-```
-
-Using cdn:
-
-```html
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+$ npm install axios-jsonp-pro
 ```
 
 ## Example
+
+Performing a `JSONP` request
+
+```js
+// Make a request for a user with a given ID
+axios.jsonp('/user?ID=12345')
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+// Optionally the request above could also be done as
+axios.jsonp('/user', {
+    params: {
+      ID: 12345
+    }
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+```
 
 Performing a `GET` request
 
@@ -149,15 +163,23 @@ axios('/user/12345');
 For convenience aliases have been provided for all supported request methods.
 
 ##### axios.request(config)
+
 ##### axios.get(url[, config])
+
 ##### axios.delete(url[, config])
+
 ##### axios.head(url[, config])
+
 ##### axios.options(url[, config])
-##### axios.post(url[, data[, config]])
-##### axios.put(url[, data[, config]])
-##### axios.patch(url[, data[, config]])
+
+##### axios.post(url\[, data[, config]])
+
+##### axios.put(url\[, data[, config]])
+
+##### axios.patch(url\[, data[, config]])
 
 ###### NOTE
+
 When using the alias methods `url`, `method`, and `data` properties don't need to be specified in config.
 
 ### Concurrency
@@ -165,6 +187,7 @@ When using the alias methods `url`, `method`, and `data` properties don't need t
 Helper functions for dealing with concurrent requests.
 
 ##### axios.all(iterable)
+
 ##### axios.spread(callback)
 
 ### Creating an instance
@@ -186,13 +209,20 @@ var instance = axios.create({
 The available instance methods are listed below. The specified config will be merged with the instance config.
 
 ##### axios#request(config)
+
 ##### axios#get(url[, config])
+
 ##### axios#delete(url[, config])
+
 ##### axios#head(url[, config])
+
 ##### axios#options(url[, config])
-##### axios#post(url[, data[, config]])
-##### axios#put(url[, data[, config]])
-##### axios#patch(url[, data[, config]])
+
+##### axios#post(url\[, data[, config]])
+
+##### axios#put(url\[, data[, config]])
+
+##### axios#patch(url\[, data[, config]])
 
 ## Request Config
 
@@ -501,7 +531,7 @@ axios.get('/user/12345', {
 
 ## Cancellation
 
-You can cancel a request using a *cancel token*.
+You can cancel a request using a _cancel token_.
 
 > The axios cancel token API is based on the withdrawn [cancelable promises proposal](https://github.com/tc39/proposal-cancelable-promises).
 
@@ -589,7 +619,9 @@ axios depends on a native ES6 Promise implementation to be [supported](http://ca
 If your environment doesn't support ES6 Promises, you can [polyfill](https://github.com/jakearchibald/es6-promise).
 
 ## TypeScript
+
 axios includes [TypeScript](http://typescriptlang.org) definitions.
+
 ```typescript
 import axios from 'axios';
 axios.get('/user?ID=12345');
@@ -597,11 +629,11 @@ axios.get('/user?ID=12345');
 
 ## Resources
 
-* [Changelog](https://github.com/mzabriskie/axios/blob/master/CHANGELOG.md)
-* [Upgrade Guide](https://github.com/mzabriskie/axios/blob/master/UPGRADE_GUIDE.md)
-* [Ecosystem](https://github.com/mzabriskie/axios/blob/master/ECOSYSTEM.md)
-* [Contributing Guide](https://github.com/mzabriskie/axios/blob/master/CONTRIBUTING.md)
-* [Code of Conduct](https://github.com/mzabriskie/axios/blob/master/CODE_OF_CONDUCT.md)
+-   [Changelog](https://github.com/mzabriskie/axios/blob/master/CHANGELOG.md)
+-   [Upgrade Guide](https://github.com/mzabriskie/axios/blob/master/UPGRADE_GUIDE.md)
+-   [Ecosystem](https://github.com/mzabriskie/axios/blob/master/ECOSYSTEM.md)
+-   [Contributing Guide](https://github.com/mzabriskie/axios/blob/master/CONTRIBUTING.md)
+-   [Code of Conduct](https://github.com/mzabriskie/axios/blob/master/CODE_OF_CONDUCT.md)
 
 ## Credits
 

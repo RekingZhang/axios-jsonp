@@ -1,6 +1,6 @@
 {
-    "name": "axios",
-    "version": "0.16.2",
+    "name": "axios-jsonp-pro",
+    "version": "0.1.0",
     "description": "Promise based HTTP client for the browser and node.js",
     "main": "index.js",
     "scripts": {
@@ -22,9 +22,10 @@
         "http",
         "ajax",
         "promise",
-        "node"
+        "node",
+        "jsonp"
     ],
-    "author": "Matt Zabriskie",
+    "author": "Reking Zhang",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/RekingZhang/axios-jsonp/issues"
