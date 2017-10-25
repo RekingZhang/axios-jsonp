@@ -1478,8 +1478,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 23 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
+	var buildURL = __webpack_require__(12);
+	var utils = __webpack_require__(2);
 	/**
 	 * Callback index.
 	 */
@@ -1506,7 +1508,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	
 	function jsonp(url, opts) {
-	    if (!opts) opts = {};
+	    if (utils.isObject(url)) {
+	        opts = url;
+	    } else {
+	        opts = utils.merge(opts || {}, {
+	            url: url
+	        });
+	    }
 	
 	    var prefix = opts.prefix || '__jp';
 	
@@ -1514,13 +1522,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // otherwise generate a unique name by incrementing our counter.
 	    var id = opts.name || (prefix + (count++));
 	
-	    var param = opts.param || 'callback';
 	    var timeout = null != opts.timeout ? opts.timeout : 60000;
+	    var cacheFlag = opts.cache || false;
 	    var enc = encodeURIComponent;
 	    var target = document.getElementsByTagName('script')[0] || document.head;
 	    var script;
 	    var timer;
 	
+	    if (!opts.url) {
+	        throw new TypeError('url is null or not defined');
+	    }
 	    return new Promise(function(resolve, reject) {
 	        try {
 	            if (timeout) {
@@ -1541,14 +1552,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	
 	            // add qs component
-	            url += (~url.indexOf('?') ? '&' : '?') + param + '=' + enc(id);
-	            url = url.replace('?&', '?');
+	            opts.url = buildURL(opts.url, opts.params, opts.paramsSerializer) + '&callback=' + enc(id);
+	            //cache
+	            !cacheFlag && (opts.url += '&_=' + (new Date()).getTime());
 	
-	            // debug('jsonp req "%s"', url);
+	            opts.url = opts.url.replace('?&', '?');
+	
 	
 	            // create script
 	            script = document.createElement('script');
-	            script.src = url;
+	            script.src = opts.url;
 	            target.parentNode.insertBefore(script, target);
 	        } catch (e) {
 	            reject(e);
