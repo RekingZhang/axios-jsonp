@@ -74,15 +74,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @return {Axios} A new instance of Axios
 	 */
 	function createInstance(defaultConfig) {
-	    var context = new Axios(defaultConfig);
-	    var instance = bind(Axios.prototype.request, context);
+	  var context = new Axios(defaultConfig);
+	  var instance = bind(Axios.prototype.request, context);
 	    // Copy axios.prototype to instance
-	    utils.extend(instance, Axios.prototype, context);
+	  utils.extend(instance, Axios.prototype, context);
 	
 	    // Copy context to instance
-	    utils.extend(instance, context);
+	  utils.extend(instance, context);
 	
-	    return instance;
+	  return instance;
 	}
 	
 	// Create the default instance to be exported
@@ -93,7 +93,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	// Factory for creating new instances
 	axios.create = function create(instanceConfig) {
-	    return createInstance(utils.merge(defaults, instanceConfig));
+	  return createInstance(utils.merge(defaults, instanceConfig));
 	};
 	
 	// Expose Cancel & CancelToken
@@ -103,7 +103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	// Expose all/spread
 	axios.all = function all(promises) {
-	    return Promise.all(promises);
+	  return Promise.all(promises);
 	};
 	axios.spread = __webpack_require__(26);
 	
@@ -446,7 +446,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/*!
 	 * Determine if an object is a Buffer
 	 *
-	 * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+	 * @author   Feross Aboukhadijeh <https://feross.org>
 	 * @license  MIT
 	 */
 	
@@ -484,11 +484,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} instanceConfig The default config for the instance
 	 */
 	function Axios(instanceConfig) {
-	    this.defaults = instanceConfig;
-	    this.interceptors = {
-	        request: new InterceptorManager(),
-	        response: new InterceptorManager()
-	    };
+	  this.defaults = instanceConfig;
+	  this.interceptors = {
+	    request: new InterceptorManager(),
+	    response: new InterceptorManager()
+	  };
 	}
 	
 	/**
@@ -497,61 +497,88 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} config The config specific for this request (merged with this.defaults)
 	 */
 	Axios.prototype.request = function request(config) {
-	    /*eslint no-param-reassign:0*/
-	    // Allow for axios('example/url'[, config]) a la fetch API
-	    if (typeof config === 'string') {
-	        config = utils.merge({
-	            url: arguments[0]
-	        }, arguments[1]);
-	    }
+	  /*eslint no-param-reassign:0*/
+	  // Allow for axios('example/url'[, config]) a la fetch API
+	  if (typeof config === 'string') {
+	    config = utils.merge(
+	      {
+	        url: arguments[0]
+	      },
+	      arguments[1]
+	    );
+	  }
 	
-	    config = utils.merge(defaults, this.defaults, {
-	        method: 'get'
-	    }, config);
-	    config.method = config.method.toLowerCase();
+	  config = utils.merge(
+	    defaults,
+	    this.defaults,
+	    {
+	      method: 'get'
+	    },
+	    config
+	  );
+	  config.method = config.method.toLowerCase();
 	
-	    // Hook up interceptors middleware
-	    var chain = [dispatchRequest, undefined];
-	    var promise = Promise.resolve(config);
+	  // Hook up interceptors middleware
+	  var chain = [undefined];
 	
-	    this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-	        chain.unshift(interceptor.fulfilled, interceptor.rejected);
-	    });
+	  //   var chain = [dispatchRequest, undefined];
+	  var promise = Promise.resolve(config);
 	
-	    this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-	        chain.push(interceptor.fulfilled, interceptor.rejected);
-	    });
+	  if (config.method !== 'jsonp') {
+	    chain.unshift(dispatchRequest);
+	  } else {
+	    chain.unshift(jsonp);
+	  }
 	
-	    while (chain.length) {
-	        promise = promise.then(chain.shift(), chain.shift());
-	    }
+	  this.interceptors.request.forEach(function unshiftRequestInterceptors(
+	    interceptor
+	  ) {
+	    chain.unshift(interceptor.fulfilled, interceptor.rejected);
+	  });
 	
-	    return promise;
+	  this.interceptors.response.forEach(function pushResponseInterceptors(
+	    interceptor
+	  ) {
+	    chain.push(interceptor.fulfilled, interceptor.rejected);
+	  });
+	
+	  while (chain.length) {
+	    promise = promise.then(chain.shift(), chain.shift());
+	  }
+	
+	  return promise;
 	};
 	
 	// Provide aliases for supported request methods
-	utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+	utils.forEach(
+	  ['delete', 'get', 'head', 'options', 'jsonp'],
+	  function forEachMethodNoData(method) {
 	    /*eslint func-names:0*/
 	    Axios.prototype[method] = function(url, config) {
-	        return this.request(utils.merge(config || {}, {
-	            method: method,
-	            url: url
-	        }));
+	      return this.request(
+	        utils.merge(config || {}, {
+	          method: method,
+	          url: url
+	        })
+	      );
 	    };
-	});
+	  }
+	);
 	
 	utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-	    /*eslint func-names:0*/
-	    Axios.prototype[method] = function(url, data, config) {
-	        return this.request(utils.merge(config || {}, {
-	            method: method,
-	            url: url,
-	            data: data
-	        }));
-	    };
+	  /*eslint func-names:0*/
+	  Axios.prototype[method] = function(url, data, config) {
+	    return this.request(
+	      utils.merge(config || {}, {
+	        method: method,
+	        url: url,
+	        data: data
+	      })
+	    );
+	  };
 	});
 	// add jsonp
-	Axios.prototype.jsonp = jsonp;
+	// Axios.prototype.jsonp = jsonp;
 	
 	module.exports = Axios;
 
@@ -1480,8 +1507,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
 	var buildURL = __webpack_require__(12);
-	var utils = __webpack_require__(2);
 	/**
 	 * Callback index.
 	 */
@@ -1507,66 +1535,60 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object|Function} optional options / callback
 	 */
 	
-	function jsonp(url, opts) {
-	    if (utils.isObject(url)) {
-	        opts = url;
-	    } else {
-	        opts = utils.merge(opts || {}, {
-	            url: url
-	        });
+	function jsonp(opts) {
+	  var prefix = opts.prefix || '__jp';
+	
+		// use the callback name that was passed if one was provided.
+		// otherwise generate a unique name by incrementing our counter.
+	  var id = opts.name || prefix + count++;
+	
+	  var timeout = opts.timeout || 60000;
+	  var cacheFlag = opts.cache || false;
+	  var enc = encodeURIComponent;
+	  var target = document.getElementsByTagName('script')[0] || document.head;
+	  var script;
+	  var timer;
+	  if (!opts.url) {
+	    throw new TypeError('url is null or not defined');
+	  }
+	  /* eslint-disable */
+	  return new Promise(function(resolve, reject) {
+	    try {
+		  
+	      function cleanup() {
+	        if (script.parentNode) script.parentNode.removeChild(script);
+	        window[id] = noop;
+	        if (timer) clearTimeout(timer);
+		  }
+	      if (timeout) {
+	        timer = setTimeout(function() {
+	          cleanup();
+	        }, timeout);
+	      }
+	
+	      window[id] = function(data) {
+	        cleanup();
+	        resolve(data);
+	      };
+	
+				// add qs component
+	      opts.url =
+					buildURL(opts.url, opts.params, opts.paramsSerializer) +
+					'&callback=' +
+					enc(id);
+				// cache
+	      !cacheFlag && (opts.url += '&_=' + new Date().getTime());
+	
+	      opts.url = opts.url.replace('?&', '?');
+	
+				// create script
+	      script = document.createElement('script');
+	      script.src = opts.url;
+	      target.parentNode.insertBefore(script, target);
+	    } catch (e) {
+	      reject(e);
 	    }
-	
-	    var prefix = opts.prefix || '__jp';
-	
-	    // use the callback name that was passed if one was provided.
-	    // otherwise generate a unique name by incrementing our counter.
-	    var id = opts.name || (prefix + (count++));
-	
-	    var timeout = null != opts.timeout ? opts.timeout : 60000;
-	    var cacheFlag = opts.cache || false;
-	    var enc = encodeURIComponent;
-	    var target = document.getElementsByTagName('script')[0] || document.head;
-	    var script;
-	    var timer;
-	
-	    if (!opts.url) {
-	        throw new TypeError('url is null or not defined');
-	    }
-	    return new Promise(function(resolve, reject) {
-	        try {
-	            if (timeout) {
-	                timer = setTimeout(function() {
-	                    cleanup();
-	                }, timeout);
-	            }
-	
-	            function cleanup() {
-	                if (script.parentNode) script.parentNode.removeChild(script);
-	                window[id] = noop;
-	                if (timer) clearTimeout(timer);
-	            }
-	
-	            window[id] = function(data) {
-	                cleanup();
-	                resolve(data);
-	            };
-	
-	            // add qs component
-	            opts.url = buildURL(opts.url, opts.params, opts.paramsSerializer) + '&callback=' + enc(id);
-	            //cache
-	            !cacheFlag && (opts.url += '&_=' + (new Date()).getTime());
-	
-	            opts.url = opts.url.replace('?&', '?');
-	
-	
-	            // create script
-	            script = document.createElement('script');
-	            script.src = opts.url;
-	            target.parentNode.insertBefore(script, target);
-	        } catch (e) {
-	            reject(e);
-	        }
-	    });
+	  });
 	}
 	
 	module.exports = jsonp;
