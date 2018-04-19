@@ -51,6 +51,7 @@ axios.jsonp('/user?ID=12345')
 
 // Optionally the request above could also be done as
 axios.jsonp('/user', {
+	timeout: 1000,
     params: {
       ID: 12345
     }
@@ -61,20 +62,6 @@ axios.jsonp('/user', {
   .catch(function (error) {
     console.log(error);
   });
-
-  axios.jsonp({
-      url: '/user',
-      timeout: 1000,
-      params: {
-        ID: 12345
-      }
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
 ```
 
 Performing a `GET` request
