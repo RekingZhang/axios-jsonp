@@ -1538,8 +1538,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	function jsonp(opts) {
 	  var prefix = opts.prefix || '__jp';
 	
-		// use the callback name that was passed if one was provided.
-		// otherwise generate a unique name by incrementing our counter.
+	  // use the callback name that was passed if one was provided.
+	  // otherwise generate a unique name by incrementing our counter.
 	  var id = opts.name || prefix + count++;
 	
 	  var timeout = opts.timeout || 60000;
@@ -1548,46 +1548,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var target = document.getElementsByTagName('script')[0] || document.head;
 	  var script;
 	  var timer;
+	
+	  function cleanup() {
+	    if (script.parentNode) script.parentNode.removeChild(script);
+	    window[id] = noop;
+	    if (timer) clearTimeout(timer);
+	  }
+	
 	  if (!opts.url) {
 	    throw new TypeError('url is null or not defined');
 	  }
-		/* eslint-disable */
-		return new Promise(function(resolve, reject) {
-			try {
-				function cleanup() {
-					if (script.parentNode) script.parentNode.removeChild(script);
-					window[id] = noop;
-					if (timer) clearTimeout(timer);
-				}
-				if (timeout) {
-					timer = setTimeout(function() {
-						cleanup();
-					}, timeout);
-				}
 	
-				window[id] = function(data) {
-					cleanup();
-					resolve(data);
-				};
+	  return new Promise(function(resolve, reject) {
+	    try {
+	      if (timeout) {
+	        timer = setTimeout(function() {
+	          cleanup();
+	          reject(new Error('Request timed out'));
+	        }, timeout);
+	      }
 	
-				// add params
-				opts.url =
-					buildURL(opts.url, opts.params, opts.paramsSerializer);
-				//add callback
-				opts.url += (opts.url.indexOf('?') === -1 ? '?' : '&') +
-				'callback=' +
-				enc(id);
-				// cache
-				!cacheFlag && (opts.url += '&_=' + new Date().getTime());
+	      window[id] = function(data) {
+	        cleanup();
+	        resolve(data);
+	      };
 	
-				// create script
-				script = document.createElement('script');
-				script.src = opts.url;
-				target.parentNode.insertBefore(script, target);
-			} catch (e) {
-				reject(e);
-			}
-		});
+	      // add params
+	      opts.url = buildURL(opts.url, opts.params, opts.paramsSerializer);
+	      // add callback
+	      opts.url +=
+					(opts.url.indexOf('?') === -1 ? '?' : '&') +
+					'callback=' +
+					enc(id);
+	      // cache
+	      !cacheFlag && (opts.url += '&_=' + new Date().getTime());
+	
+	      // create script
+	      script = document.createElement('script');
+	      script.src = opts.url;
+	      target.parentNode.insertBefore(script, target);
+	    } catch (e) {
+	      reject(e);
+	    }
+	  });
 	}
 	
 	module.exports = jsonp;
