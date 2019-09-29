@@ -476,7 +476,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var utils = __webpack_require__(2);
 	var InterceptorManager = __webpack_require__(17);
 	var dispatchRequest = __webpack_require__(18);
-	var jsonp = __webpack_require__(23);
 	
 	/**
 	 * Create a new instance of Axios
@@ -484,11 +483,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} instanceConfig The default config for the instance
 	 */
 	function Axios(instanceConfig) {
-	  this.defaults = instanceConfig;
-	  this.interceptors = {
-	    request: new InterceptorManager(),
-	    response: new InterceptorManager()
-	  };
+		this.defaults = instanceConfig;
+		this.interceptors = {
+			request: new InterceptorManager(),
+			response: new InterceptorManager()
+		};
 	}
 	
 	/**
@@ -497,91 +496,85 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Object} config The config specific for this request (merged with this.defaults)
 	 */
 	Axios.prototype.request = function request(config) {
-	  /*eslint no-param-reassign:0*/
-	  // Allow for axios('example/url'[, config]) a la fetch API
-	  if (typeof config === 'string') {
-	    config = utils.merge(
-	      {
-	        url: arguments[0]
-	      },
-	      arguments[1]
-	    );
-	  }
+		/*eslint no-param-reassign:0*/
+		// Allow for axios('example/url'[, config]) a la fetch API
+		if (typeof config === 'string') {
+			config = utils.merge({
+					url: arguments[0]
+				},
+				arguments[1]
+			);
+		}
 	
-	  config = utils.merge(
-	    defaults,
-	    this.defaults,
-	    {
-	      method: 'get'
-	    },
-	    config
-	  );
-	  config.method = config.method.toLowerCase();
+		config = utils.merge(
+			defaults,
+			this.defaults, {
+				method: 'get'
+			},
+			config
+		);
+		config.method = config.method.toLowerCase();
 	
-	  // Hook up interceptors middleware
-	  var chain = [undefined];
+		// Hook up interceptors middleware
+		var chain = [undefined];
 	
-	  //   var chain = [dispatchRequest, undefined];
-	  var promise = Promise.resolve(config);
+		//   var chain = [dispatchRequest, undefined];
+		var promise = Promise.resolve(config);
 	
-	  if (config.method !== 'jsonp') {
-	    chain.unshift(dispatchRequest);
-	  } else {
-	    chain.unshift(jsonp);
-	  }
+		chain.unshift(dispatchRequest);
 	
-	  this.interceptors.request.forEach(function unshiftRequestInterceptors(
-	    interceptor
-	  ) {
-	    chain.unshift(interceptor.fulfilled, interceptor.rejected);
-	  });
 	
-	  this.interceptors.response.forEach(function pushResponseInterceptors(
-	    interceptor
-	  ) {
-	    chain.push(interceptor.fulfilled, interceptor.rejected);
-	  });
+		this.interceptors.request.forEach(function unshiftRequestInterceptors(
+			interceptor
+		) {
+			chain.unshift(interceptor.fulfilled, interceptor.rejected);
+		});
 	
-	  while (chain.length) {
-	    promise = promise.then(chain.shift(), chain.shift());
-	  }
+		this.interceptors.response.forEach(function pushResponseInterceptors(
+			interceptor
+		) {
+			chain.push(interceptor.fulfilled, interceptor.rejected);
+		});
 	
-	  return promise;
+		while (chain.length) {
+			promise = promise.then(chain.shift(), chain.shift());
+		}
+	
+		return promise;
 	};
 	
 	// Provide aliases for supported request methods
 	utils.forEach(
-	  ['delete', 'get', 'head', 'options', 'jsonp'],
-	  function forEachMethodNoData(method) {
-	    /*eslint func-names:0*/
-	    Axios.prototype[method] = function(url, config) {
-	      return this.request(
-	        utils.merge(config || {}, {
-	          method: method,
-	          url: url
-	        })
-	      );
-	    };
-	  }
+		['delete', 'get', 'head', 'options', 'jsonp'],
+		function forEachMethodNoData(method) {
+			/*eslint func-names:0*/
+			Axios.prototype[method] = function (url, config) {
+				return this.request(
+					utils.merge(config || {}, {
+						method: method,
+						url: url
+					})
+				);
+			};
+		}
 	);
 	
 	utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-	  /*eslint func-names:0*/
-	  Axios.prototype[method] = function(url, data, config) {
-	    return this.request(
-	      utils.merge(config || {}, {
-	        method: method,
-	        url: url,
-	        data: data
-	      })
-	    );
-	  };
+		/*eslint func-names:0*/
+		Axios.prototype[method] = function (url, data, config) {
+			return this.request(
+				utils.merge(config || {}, {
+					method: method,
+					url: url,
+					data: data
+				})
+			);
+		};
 	});
 	// add jsonp
 	// Axios.prototype.jsonp = jsonp;
 	
 	module.exports = Axios;
-
 
 /***/ }),
 /* 6 */
@@ -1346,14 +1339,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	var defaults = __webpack_require__(6);
 	var isAbsoluteURL = __webpack_require__(21);
 	var combineURLs = __webpack_require__(22);
+	var jsonp = __webpack_require__(23);
 	
 	/**
 	 * Throws a `Cancel` if cancellation has been requested.
 	 */
 	function throwIfCancellationRequested(config) {
-	  if (config.cancelToken) {
-	    config.cancelToken.throwIfRequested();
-	  }
+		if (config.cancelToken) {
+			config.cancelToken.throwIfRequested();
+		}
 	}
 	
 	/**
@@ -1363,68 +1357,71 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @returns {Promise} The Promise to be fulfilled
 	 */
 	module.exports = function dispatchRequest(config) {
-	  throwIfCancellationRequested(config);
+		throwIfCancellationRequested(config);
 	
-	  // Support baseURL config
-	  if (config.baseURL && !isAbsoluteURL(config.url)) {
-	    config.url = combineURLs(config.baseURL, config.url);
-	  }
+		// Support baseURL config
+		if (config.baseURL && !isAbsoluteURL(config.url)) {
+			config.url = combineURLs(config.baseURL, config.url);
+		}
 	
-	  // Ensure headers exist
-	  config.headers = config.headers || {};
+		// Ensure headers exist
+		config.headers = config.headers || {};
 	
-	  // Transform request data
-	  config.data = transformData(
-	    config.data,
-	    config.headers,
-	    config.transformRequest
-	  );
+		// Transform request data
+		config.data = transformData(
+			config.data,
+			config.headers,
+			config.transformRequest
+		);
 	
-	  // Flatten headers
-	  config.headers = utils.merge(
-	    config.headers.common || {},
-	    config.headers[config.method] || {},
-	    config.headers || {}
-	  );
+		// Flatten headers
+		config.headers = utils.merge(
+			config.headers.common || {},
+			config.headers[config.method] || {},
+			config.headers || {}
+		);
 	
-	  utils.forEach(
-	    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-	    function cleanHeaderConfig(method) {
-	      delete config.headers[method];
-	    }
-	  );
+		utils.forEach(
+			['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+			function cleanHeaderConfig(method) {
+				delete config.headers[method];
+			}
+		);
 	
-	  var adapter = config.adapter || defaults.adapter;
+		var adapter = config.adapter || defaults.adapter;
 	
-	  return adapter(config).then(function onAdapterResolution(response) {
-	    throwIfCancellationRequested(config);
+		if (config.method === 'jsonp') {
+			return jsonp(config);
+		}
 	
-	    // Transform response data
-	    response.data = transformData(
-	      response.data,
-	      response.headers,
-	      config.transformResponse
-	    );
+		return adapter(config).then(function onAdapterResolution(response) {
+			throwIfCancellationRequested(config);
 	
-	    return response;
-	  }, function onAdapterRejection(reason) {
-	    if (!isCancel(reason)) {
-	      throwIfCancellationRequested(config);
+			// Transform response data
+			response.data = transformData(
+				response.data,
+				response.headers,
+				config.transformResponse
+			);
 	
-	      // Transform response data
-	      if (reason && reason.response) {
-	        reason.response.data = transformData(
-	          reason.response.data,
-	          reason.response.headers,
-	          config.transformResponse
-	        );
-	      }
-	    }
+			return response;
+		}, function onAdapterRejection(reason) {
+			if (!isCancel(reason)) {
+				throwIfCancellationRequested(config);
 	
-	    return Promise.reject(reason);
-	  });
+				// Transform response data
+				if (reason && reason.response) {
+					reason.response.data = transformData(
+						reason.response.data,
+						reason.response.headers,
+						config.transformResponse
+					);
+				}
+			}
+	
+			return Promise.reject(reason);
+		});
 	};
-
 
 /***/ }),
 /* 19 */
@@ -1536,65 +1533,70 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	
 	function jsonp(opts) {
-	  var prefix = opts.prefix || '__jp';
+		var prefix = opts.prefix || '__jp';
 	
-	  // use the callback name that was passed if one was provided.
-	  // otherwise generate a unique name by incrementing our counter.
-	  var id = opts.name || prefix + count++;
+		// use the callback name that was passed if one was provided.
+		// otherwise generate a unique name by incrementing our counter.
+		var id = opts.name || prefix + count++;
 	
-	  var timeout = opts.timeout || 60000;
-	  var cacheFlag = opts.cache || false;
-	  var enc = encodeURIComponent;
-	  var target = document.getElementsByTagName('script')[0] || document.head;
-	  var script;
-	  var timer;
+		var timeout = opts.timeout || 60000;
+		var cacheFlag = opts.cache || false;
+		var enc = encodeURIComponent;
+		var target = document.getElementsByTagName('script')[0] || document.head;
+		var script;
+		var timer;
 	
-	  function cleanup() {
-	    if (script.parentNode) script.parentNode.removeChild(script);
-	    window[id] = noop;
-	    if (timer) clearTimeout(timer);
-	  }
+		function cleanup() {
+			if (script.parentNode) script.parentNode.removeChild(script);
+			window[id] = noop;
+			if (timer) clearTimeout(timer);
+		}
 	
-	  if (!opts.url) {
-	    throw new TypeError('url is null or not defined');
-	  }
+		if (!opts.url) {
+			throw new TypeError('url is null or not defined');
+		}
 	
-	  return new Promise(function(resolve, reject) {
-	    try {
-	      if (timeout) {
-	        timer = setTimeout(function() {
-	          cleanup();
-	          reject(new Error('Request timed out'));
-	        }, timeout);
-	      }
+		return new Promise(function (resolve, reject) {
+			try {
+				if (timeout) {
+					timer = setTimeout(function () {
+						cleanup();
+						reject(new Error('Request timed out'));
+					}, timeout);
+				}
 	
-	      window[id] = function(data) {
-	        cleanup();
-	        resolve(data);
-	      };
+				window[id] = function (data) {
+					cleanup();
 	
-	      // add params
-	      opts.url = buildURL(opts.url, opts.params, opts.paramsSerializer);
-	      // add callback
-	      opts.url +=
+					//Throws a `Cancel` if cancellation has been requested.
+					if (opts.cancelToken) {
+						opts.cancelToken.throwIfRequested();
+					}
+	
+					resolve(data);
+				};
+	
+				// add params
+				opts.url = buildURL(opts.url, opts.params, opts.paramsSerializer);
+				// add callback
+				opts.url +=
 					(opts.url.indexOf('?') === -1 ? '?' : '&') +
 					'callback=' +
 					enc(id);
-	      // cache
-	      !cacheFlag && (opts.url += '&_=' + new Date().getTime());
+				// cache
+				!cacheFlag && (opts.url += '&_=' + new Date().getTime());
 	
-	      // create script
-	      script = document.createElement('script');
-	      script.src = opts.url;
-	      target.parentNode.insertBefore(script, target);
-	    } catch (e) {
-	      reject(e);
-	    }
-	  });
+				// create script
+				script = document.createElement('script');
+				script.src = opts.url;
+				target.parentNode.insertBefore(script, target);
+			} catch (e) {
+				reject(e);
+			}
+		});
 	}
 	
 	module.exports = jsonp;
-
 
 /***/ }),
 /* 24 */
